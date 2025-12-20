@@ -1,0 +1,65 @@
+name: Update Release Branch
+
+on:
+  # 1. 每天自动更新 (UTC 时间 00:00，北京时间 08:00)
+  schedule:
+    - cron: '0 0 * * *'
+  
+  # 2. 手动触发
+  workflow_dispatch:
+  
+  # 3. 当 domain.txt 或 ipcidr.txt 有变更时触发
+  push:
+    branches:
+      - main
+    paths:
+      - 'domain.txt'
+      - 'ipcidr.txt'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+      
+      - name: Install dependencies
+        run: go mod download
+      
+      - name: Run main.go to generate files
+        run: go run main.go
+      
+      - name: Checkout release branch
+        uses: actions/checkout@v4
+        with:
+          ref: release
+          path: release-branch
+      
+      - name: Copy generated files to release branch
+        run: |
+          # 复制 release 目录下所有生成的文件到 release 分支
+          cp -r release/* release-branch/
+      
+      - name: Commit and push to release branch
+        run: |
+          cd release-branch
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          
+          # 检查是否有变更
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto update: $(date +'%Y-%m-%d %H:%M:%S UTC')"
+            git push
+          fi
