@@ -36,7 +36,7 @@ jobs:
         run: go mod download
       
       - name: Run main.go to generate files
-        run: go run main.go
+        run: go run .
       
       - name: Checkout release branch
         uses: actions/checkout@v4
