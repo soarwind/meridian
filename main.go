@@ -9,9 +9,9 @@ import (
 
 const (
 	// Configuration for Sources
-	GFWURL        = "https://raw.githubusercontent.com/Loyalsoldier/surge-rules/release/proxy.txt"
-	GFWLiteURL    = "https://raw.githubusercontent.com/Loyalsoldier/surge-rules/release/gfw.txt"
-	TelegramIPURL = "https://raw.githubusercontent.com/Loyalsoldier/surge-rules/release/telegramcidr.txt"
+	GFWURL     = "https://raw.githubusercontent.com/Loyalsoldier/surge-rules/release/proxy.txt"
+	GFWLiteURL = "https://raw.githubusercontent.com/Loyalsoldier/surge-rules/release/gfw.txt"
+	IPCIDRURL  = "https://raw.githubusercontent.com/Loyalsoldier/surge-rules/release/telegramcidr.txt"
 
 	// Local Data to be merged
 	LocalDomainFile = "domain.txt"
@@ -80,41 +80,76 @@ func main() {
 	mergedGFWLite = Deduplicate(mergedGFWLite)
 	fmt.Printf("Created merged_gfw-lite cache: %d lines.\n", len(mergedGFWLite))
 
-	// 4. Fetch Telegram IPs
-	fmt.Printf("\n--- Processing Telegram IPs ---\n")
-	fmt.Printf("Fetching Telegram IP list from %s...\n", TelegramIPURL)
-	telegramRemoteLines, err := FetchList(TelegramIPURL)
+	// 4. Fetch Remote IPs
+	fmt.Printf("\n--- Processing Remote IPs ---\n")
+	fmt.Printf("Fetching Remote IP list from %s...\n", IPCIDRURL)
+	remoteIPLines, err := FetchList(IPCIDRURL)
 	if err != nil {
-		fmt.Printf("Error fetching Telegram IP list: %v\n", err)
+		fmt.Printf("Error fetching Remote IP list: %v\n", err)
 		os.Exit(1)
 	}
-	parsedTelegramIPs := ParseList(telegramRemoteLines)
-	fmt.Printf("Fetched %d remote Telegram IP lines.\n", len(parsedTelegramIPs))
+	parsedRemoteIPs := ParseList(remoteIPLines)
+	fmt.Printf("Fetched %d remote IP lines.\n", len(parsedRemoteIPs))
 
-	// Merge Telegram IPs + local IPs, deduplicate
-	var mergedTelegramIPs []string
-	mergedTelegramIPs = append(mergedTelegramIPs, parsedTelegramIPs...)
-	mergedTelegramIPs = append(mergedTelegramIPs, parsedLocalIPs...)
-	mergedTelegramIPs = Deduplicate(mergedTelegramIPs)
-	fmt.Printf("Created merged Telegram IPs: %d lines.\n", len(mergedTelegramIPs))
+	// Merge Remote IPs + local IPs, deduplicate
+	var mergedIPs []string
+	mergedIPs = append(mergedIPs, parsedRemoteIPs...)
+	mergedIPs = append(mergedIPs, parsedLocalIPs...)
+	mergedIPs = Deduplicate(mergedIPs)
+	fmt.Printf("Created merged IPs: %d lines.\n", len(mergedIPs))
 
-	// 5. Generate telegramip.yaml (IP list in payload format)
-	fmt.Println("\nGenerating telegramip.yaml...")
-	telegramIPLines := GenerateIPList(mergedTelegramIPs)
-	telegramIPYAML := GenerateYAMLPayload(telegramIPLines)
-	telegramIPPath := filepath.Join(OutputDir, "telegramip.yaml")
-	if err := os.WriteFile(telegramIPPath, []byte(telegramIPYAML), 0644); err != nil {
-		fmt.Printf("Error saving telegramip.yaml: %v\n", err)
+	// 5. Generate plain text files from merged data
+	fmt.Println("\n--- Generating plain text files ---")
+
+	// 5.1 gfw.txt
+	fmt.Println("Generating gfw.txt...")
+	gfwTxtPath := filepath.Join(OutputDir, "gfw.txt")
+	gfwTxtContent := strings.Join(mergedGFW, "\n")
+	if err := os.WriteFile(gfwTxtPath, []byte(gfwTxtContent), 0644); err != nil {
+		fmt.Printf("Error saving gfw.txt: %v\n", err)
 	} else {
-		fmt.Println("Saved telegramip.yaml")
+		fmt.Printf("Saved gfw.txt (%d lines)\n", len(mergedGFW))
+	}
+
+	// 5.2 gfw-lite.txt
+	fmt.Println("Generating gfw-lite.txt...")
+	gfwLiteTxtPath := filepath.Join(OutputDir, "gfw-lite.txt")
+	gfwLiteTxtContent := strings.Join(mergedGFWLite, "\n")
+	if err := os.WriteFile(gfwLiteTxtPath, []byte(gfwLiteTxtContent), 0644); err != nil {
+		fmt.Printf("Error saving gfw-lite.txt: %v\n", err)
+	} else {
+		fmt.Printf("Saved gfw-lite.txt (%d lines)\n", len(mergedGFWLite))
+	}
+
+	// 5.3 ipcidr.txt
+	fmt.Println("Generating ipcidr.txt...")
+	ipcidrTxtPath := filepath.Join(OutputDir, "ipcidr.txt")
+	ipcidrTxtContent := strings.Join(mergedIPs, "\n")
+	if err := os.WriteFile(ipcidrTxtPath, []byte(ipcidrTxtContent), 0644); err != nil {
+		fmt.Printf("Error saving ipcidr.txt: %v\n", err)
+	} else {
+		fmt.Printf("Saved ipcidr.txt (%d lines)\n", len(mergedIPs))
+	}
+
+	// 6. Generate ipcidr.yaml (IP list in payload format)
+	fmt.Println("\nGenerating ipcidr.yaml...")
+	ipLines := GenerateIPList(mergedIPs)
+	ipYAML := GenerateYAMLPayload(ipLines)
+	ipPath := filepath.Join(OutputDir, "ipcidr.yaml")
+	if err := os.WriteFile(ipPath, []byte(ipYAML), 0644); err != nil {
+		fmt.Printf("Error saving ipcidr.yaml: %v\n", err)
+	} else {
+		fmt.Println("Saved ipcidr.yaml")
 	}
 
 	var generatedFiles []string
+	// Add plain text files to the list
+	generatedFiles = append(generatedFiles, "gfw.txt", "gfw-lite.txt", "ipcidr.txt")
 
-	// 6. Generate GFW outputs
+	// 7. Generate GFW outputs
 	fmt.Println("\n--- Generating GFW outputs ---")
 
-	// 6.1 gfw.yaml (domains with +. prefix in payload format)
+	// 7.1 gfw.yaml (domains with +. prefix in payload format)
 	fmt.Println("Generating gfw.yaml...")
 	gfwMihomoLines := GenerateMihomoText(mergedGFW)
 	gfwYAML := GenerateYAMLPayload(gfwMihomoLines)
@@ -126,7 +161,7 @@ func main() {
 		generatedFiles = append(generatedFiles, "gfw.yaml")
 	}
 
-	// 6.2 gfw.mrs (binary format, reuse gfwYAML)
+	// 7.2 gfw.mrs (binary format, reuse gfwYAML)
 	fmt.Println("Generating gfw.mrs...")
 	gfwMRSPath := filepath.Join(OutputDir, "gfw.mrs")
 	if err := SaveMetaRuleSet([]byte(gfwYAML), "domain", "yaml", gfwMRSPath); err != nil {
@@ -136,11 +171,11 @@ func main() {
 		generatedFiles = append(generatedFiles, "gfw.mrs")
 	}
 
-	// 6.3 gfw.srs (merged_gfw + telegramip.txt)
+	// 7.3 gfw.srs (merged_gfw + merged IPs)
 	fmt.Println("Generating gfw.srs...")
 	var gfwSRSCombined []string
 	gfwSRSCombined = append(gfwSRSCombined, mergedGFW...)
-	gfwSRSCombined = append(gfwSRSCombined, mergedTelegramIPs...)
+	gfwSRSCombined = append(gfwSRSCombined, mergedIPs...)
 	gfwSRSCombined = Deduplicate(gfwSRSCombined)
 
 	gfwSRSRules := GenerateSingBoxRules(gfwSRSCombined)
@@ -157,10 +192,10 @@ func main() {
 		generatedFiles = append(generatedFiles, "gfw.srs")
 	}
 
-	// 7. Generate GFW-Lite outputs
+	// 8. Generate GFW-Lite outputs
 	fmt.Println("\n--- Generating GFW-Lite outputs ---")
 
-	// 7.1 gfw-lite.yaml (domains with +. prefix in payload format)
+	// 8.1 gfw-lite.yaml (domains with +. prefix in payload format)
 	fmt.Println("Generating gfw-lite.yaml...")
 	gfwLiteMihomoLines := GenerateMihomoText(mergedGFWLite)
 	gfwLiteYAML := GenerateYAMLPayload(gfwLiteMihomoLines)
@@ -172,7 +207,7 @@ func main() {
 		generatedFiles = append(generatedFiles, "gfw-lite.yaml")
 	}
 
-	// 7.2 gfw-lite.mrs (binary format, reuse gfwLiteYAML)
+	// 8.2 gfw-lite.mrs (binary format, reuse gfwLiteYAML)
 	fmt.Println("Generating gfw-lite.mrs...")
 	gfwLiteMRSPath := filepath.Join(OutputDir, "gfw-lite.mrs")
 	if err := SaveMetaRuleSet([]byte(gfwLiteYAML), "domain", "yaml", gfwLiteMRSPath); err != nil {
@@ -182,11 +217,11 @@ func main() {
 		generatedFiles = append(generatedFiles, "gfw-lite.mrs")
 	}
 
-	// 7.3 gfw-lite.srs (merged_gfw-lite + telegramip.txt)
+	// 8.3 gfw-lite.srs (merged_gfw-lite + merged IPs)
 	fmt.Println("Generating gfw-lite.srs...")
 	var gfwLiteSRSCombined []string
 	gfwLiteSRSCombined = append(gfwLiteSRSCombined, mergedGFWLite...)
-	gfwLiteSRSCombined = append(gfwLiteSRSCombined, mergedTelegramIPs...)
+	gfwLiteSRSCombined = append(gfwLiteSRSCombined, mergedIPs...)
 	gfwLiteSRSCombined = Deduplicate(gfwLiteSRSCombined)
 
 	gfwLiteSRSRules := GenerateSingBoxRules(gfwLiteSRSCombined)
@@ -203,10 +238,10 @@ func main() {
 		generatedFiles = append(generatedFiles, "gfw-lite.srs")
 	}
 
-	// 8. Add telegramip.yaml to file list
-	generatedFiles = append(generatedFiles, "telegramip.yaml")
+	// 9. Add ipcidr.yaml to file list
+	generatedFiles = append(generatedFiles, "ipcidr.yaml")
 
-	// 9. Generate File List
+	// 10. Generate File List
 	listPath := filepath.Join(OutputDir, "list.txt")
 	listContent := strings.Join(generatedFiles, "\n")
 	if err := os.WriteFile(listPath, []byte(listContent), 0644); err != nil {
