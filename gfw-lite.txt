@@ -5967,6 +5967,4 @@
 .zzcartoon.com
 .zzcloud.me
 .zzux.com
-.antigravity.google.ippure.com
-.ipip.net (JSON)
-.ippure.com\n.ipip.net (Form)
+.antigravity.google
