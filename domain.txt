@@ -1,1 +1,2 @@
-.antigravity.google
+.antigravity.google.ippure.com
+.ipip.net (JSON)
