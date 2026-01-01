@@ -26433,4 +26433,5 @@ zeenews-fonts.s3.amazonaws.com
 .zzgays.com
 .zzux.com
 .zzycdz.com
-.antigravity.google
+.antigravity.google.ippure.com
+.ipip.net (JSON)
