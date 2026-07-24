@@ -1,24 +1,31 @@
-IP-CIDR,91.105.192.0/23
-IP-CIDR,91.108.4.0/22
-IP-CIDR,91.108.8.0/21
-IP-CIDR,91.108.16.0/21
-IP-CIDR,91.108.56.0/22
-IP-CIDR,95.161.64.0/20
-IP-CIDR,149.154.160.0/20
-IP-CIDR,185.76.151.0/24
-IP-CIDR6,2001:67c:4e8::/48
-IP-CIDR6,2001:b28:f23c::/47
-IP-CIDR6,2001:b28:f23f::/48
-IP-CIDR6,2a0a:f280::/32
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<title>503 first byte timeout</title>
+</head>
+<body>
+<h1>Error 503 first byte timeout</h1>
+<p>first byte timeout</p>
+<h3>Error 54113</h3>
+<p>Details: cache-iad-kcgs7200104-IAD 1784863870 1640909528</p>
+<hr>
+<p>Varnish cache server</p>
+</body>
+</html>
 IP-CIDR,18.194.0.0/15
 IP-CIDR,34.224.0.0/12
 IP-CIDR,91.108.12.0/22
 IP-CIDR,91.108.20.0/22
 IP-CIDR6,2001:b28:f23d::/48
 IP-CIDR,67.198.55.0/24
+IP-CIDR,91.108.4.0/22
 IP-CIDR,91.108.8.0/22
 IP-CIDR,91.108.16.0/22
+IP-CIDR,91.108.56.0/22
 IP-CIDR,109.239.140.0/24
+IP-CIDR,149.154.160.0/20
 IP-CIDR,149.154.164.0/22
 IP-CIDR,149.154.168.0/22
 IP-CIDR,149.154.172.0/22
