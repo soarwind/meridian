@@ -3,6 +3,8 @@ gfw-lite.txt
 ipcidr.txt
 gfw.yaml
 gfw.mrs
+gfw.srs
 gfw-lite.yaml
 gfw-lite.mrs
+gfw-lite.srs
 ipcidr.yaml
