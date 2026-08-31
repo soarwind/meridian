@@ -15,6 +15,14 @@
 | MRS (Mihomo Binary) | [gfw.mrs](https://raw.githubusercontent.com/soarwind/meridian/release/gfw.mrs) | [gfw.mrs](https://cdn.jsdelivr.net/gh/soarwind/meridian@release/gfw.mrs) |
 | SRS (Sing-box Binary) | [gfw.srs](https://raw.githubusercontent.com/soarwind/meridian/release/gfw.srs) | [gfw.srs](https://cdn.jsdelivr.net/gh/soarwind/meridian@release/gfw.srs) |
 
+### GFW 域名规则集（仅域名）
+
+从 GFW 完整规则集中提取域名规则，不包含 IP CIDR，适用于只需要域名匹配的 Sing-box 配置。
+
+| 格式 | GitHub Raw | jsDelivr CDN |
+|------|-----------|--------------|
+| SRS (Sing-box Binary) | [gfw-domains.srs](https://raw.githubusercontent.com/soarwind/meridian/release/gfw-domains.srs) | [gfw-domains.srs](https://cdn.jsdelivr.net/gh/soarwind/meridian@release/gfw-domains.srs) |
+
 ### GFW-Lite 规则集（精简版）
 
 包含 GFW-Lite 域名列表 + 本地自定义域名 + Telegram IP 段
@@ -80,6 +88,18 @@ rules:
       }
     ]
   }
+}
+```
+
+仅使用 GFW 域名规则时，将 URL 和 tag 中的 `gfw` 替换为 `gfw-domains`，例如：
+
+```json
+{
+  "type": "remote",
+  "tag": "gfw-domains",
+  "format": "binary",
+  "url": "https://raw.githubusercontent.com/soarwind/meridian/release/gfw-domains.srs",
+  "download_detour": "proxy"
 }
 ```
 

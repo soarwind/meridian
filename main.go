@@ -192,6 +192,17 @@ func main() {
 		generatedFiles = append(generatedFiles, "gfw.srs")
 	}
 
+	// 7.4 gfw-domains.srs (domains from the merged GFW rule set only)
+	fmt.Println("Generating gfw-domains.srs...")
+	gfwDomainsSRSRules := GenerateSingBoxRules(mergedGFW)
+	gfwDomainsSRSPath := filepath.Join(OutputDir, "gfw-domains")
+	if err := SaveSingRuleSet(gfwDomainsSRSRules, gfwDomainsSRSPath); err != nil {
+		fmt.Printf("Error saving gfw-domains.srs: %v\n", err)
+	} else {
+		fmt.Println("Saved gfw-domains.srs")
+		generatedFiles = append(generatedFiles, "gfw-domains.srs")
+	}
+
 	// 8. Generate GFW-Lite outputs
 	fmt.Println("\n--- Generating GFW-Lite outputs ---")
 
