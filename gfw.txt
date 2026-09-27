@@ -27104,3 +27104,4 @@ zftksc.launches.appsflyersdk.com
 .revenuecat.com
 .freeshare666.com
 .cfnav.me
+*.muse.ai
