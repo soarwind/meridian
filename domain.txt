@@ -4,4 +4,4 @@
 .cfnav.me
 .muse.ai
 .museai.com
-.etco1.com
+.etco1.ai
